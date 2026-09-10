@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import argparse
 import sys
-import time
 from pathlib import Path
 
 import cv2
@@ -52,10 +51,6 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--no-display", action="store_true",
         help="Do not open a preview window (useful on headless machines).",
     )
-    parser.add_argument(
-        "--show-fps", action="store_true",
-        help="Overlay live processing FPS on the preview.",
-    )
     return parser.parse_args(argv)
 
 
@@ -82,7 +77,6 @@ def process_video(args: argparse.Namespace) -> int:
 
     tile_grid = tuple(args.tile_grid)
     frame_count = 0
-    total_processing_time = 0.0
 
     try:
         while True:
@@ -90,26 +84,12 @@ def process_video(args: argparse.Namespace) -> int:
             if not ret:
                 break
 
-            start = time.perf_counter()
             enhanced = enhance_frame(
                 frame,
                 clip_limit=args.clip_limit,
                 tile_grid_size=tile_grid,
             )
-            elapsed = time.perf_counter() - start
-            total_processing_time += elapsed
             frame_count += 1
-
-            if args.show_fps and elapsed > 0:
-                cv2.putText(
-                    enhanced,
-                    f"FPS: {1.0 / elapsed:.2f}",
-                    (10, 30),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    1,
-                    (255, 255, 255),
-                    2,
-                )
 
             if writer is not None:
                 writer.write(enhanced)
@@ -125,15 +105,7 @@ def process_video(args: argparse.Namespace) -> int:
         if not args.no_display:
             cv2.destroyAllWindows()
 
-    if frame_count:
-        avg_fps = frame_count / total_processing_time if total_processing_time else 0.0
-        print(
-            f"Processed {frame_count} frames "
-            f"(avg processing speed: {avg_fps:.2f} FPS)"
-        )
-    else:
-        print("No frames were read from the input.")
-
+    print(f"Processed {frame_count} frames.")
     return 0
 
 
