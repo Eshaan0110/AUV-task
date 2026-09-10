@@ -159,12 +159,6 @@ Tune the CLAHE strength:
 python src/video_processor.py --input orig_foot.mp4 --clip-limit 3.0 --tile-grid 8 8
 ```
 
-Overlay a live processing-FPS counter:
-
-```bash
-python src/video_processor.py --input orig_foot.mp4 --show-fps
-```
-
 Full CLI:
 
 | Flag             | Type       | Default    | Purpose                                                |
@@ -174,7 +168,6 @@ Full CLI:
 | `--clip-limit`   | float      | `2.0`      | CLAHE clip limit.                                      |
 | `--tile-grid`    | `W H` ints | `10 50`    | CLAHE tile grid size.                                  |
 | `--no-display`   | flag       | off        | Disable the preview window (headless mode).            |
-| `--show-fps`     | flag       | off        | Overlay live processing FPS on the preview.            |
 
 You can also import the enhancement function directly:
 
@@ -203,40 +196,3 @@ python src/video_processor.py --input orig_foot.mp4 --output results/enhanced.mp
 Side by side:
 
 ![comparison](results/comparison.png)
-
-## Performance
-
-Use `--show-fps` to observe real-time per-frame processing speed. The
-average processing FPS is also printed when the run finishes. The table
-below is a template — fill it in on the hardware you actually use, since
-CLAHE speed depends heavily on frame size and CPU:
-
-| Resolution  | FPS |
-| ----------- | --: |
-| 640×480     |   — |
-| 1280×720    |   — |
-| 1920×1080   |   — |
-
-## Limitations
-
-- Enhancement parameters (`clip_limit`, `tile_grid_size`) are fixed per
-  run rather than adapting to scene content.
-- The colour correction step is a per-channel min-max stretch — it does
-  **not** perform a true underwater white balance.
-- There is no quantitative image-quality evaluation (e.g. UIQM, UCIQE).
-- Throughput is CPU-bound and depends on frame resolution and hardware.
-- The pipeline has not been benchmarked against a standard underwater
-  dataset such as EUVP or UIEB.
-- No downstream perception module (detection, tracking, SLAM) is
-  integrated in this repository.
-
-## Future Improvements
-
-- **Adaptive CLAHE** driven by per-frame histogram statistics.
-- **Underwater white balancing** (e.g. gray-world variants, Shades of
-  Gray, or physics-based methods such as Sea-thru).
-- **Denoising** (bilateral or non-local means) before contrast boosting.
-- **Quantitative evaluation** on UIEB / EUVP with UIQM and UCIQE metrics.
-- **Integration with YOLO** or a similar detector as a downstream stage.
-- **Real-time ROS 2 node** that subscribes to a camera topic and
-  publishes the enhanced stream for the rest of the AUV stack.
